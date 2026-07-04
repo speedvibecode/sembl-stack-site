@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentation - sembl-stack</title>
+  <meta name="description" content="Complete sembl-stack documentation: the guided run, every command, the sembl.stack.yaml reference, executors and credentials, the run store, BLOCK/retry semantics, and CI usage.">
+  <meta name="theme-color" content="#0a0a0b">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=1">
+  <link rel="stylesheet" href="./docs.css?v=1">
+</head>
+<body class="docs-body">
+  <header class="header">
+    <div class="wrap">
+      <a class="brand" href="../" aria-label="sembl-stack home">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7cd4df"/><stop offset="0.55" stop-color="#6aa6ff"/><stop offset="1" stop-color="#ccff00"/>
+            </linearGradient>
+          </defs>
+          <g stroke="url(#lg1)" stroke-width="1.5" stroke-linejoin="round">
+            <path d="M16 3 L28 9 L16 15 L4 9 Z"/>
+            <path d="M4 15.5 L16 21.5 L28 15.5"/>
+            <path d="M4 22 L16 28 L28 22"/>
+          </g>
+          <circle cx="28" cy="9" r="2.4" fill="#ccff00"/>
+        </svg>
+        <span>sembl<span class="suffix">-stack</span></span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="../#demo">Watch a run</a>
+        <a href="./" aria-current="page" style="color:var(--text)">Docs</a>
+        <a href="https://sembl.vercel.app" title="Sembl - the gate this stack is built around">The gate &nearr;</a>
+        <a class="ghost" href="https://github.com/speedvibecode/sembl-stack">
+          <svg class="gh-ico" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014-0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout wrap">
+    <nav class="docs-nav" aria-label="Documentation sections">
+      <a href="#overview">Overview</a>
+      <a href="#install">Install</a>
+      <a href="#guided-run">The guided run</a>
+      <a href="#concepts">Artifacts &amp; the run store</a>
+      <a href="#commands">Command reference</a>
+      <a href="#config">Configuration</a>
+      <a href="#presets">Presets</a>
+      <a href="#executors">Executors &amp; credentials</a>
+      <a href="#verdicts">Verdicts, BLOCK &amp; retry</a>
+      <a href="#binding">The verdict binding</a>
+      <a href="#review">Advisory review (L5.5)</a>
+      <a href="#ci">Headless &amp; CI use</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+    </nav>
+
+    <main class="docs-main">
+      <h1>Documentation</h1>
+      <p class="docs-intro">Everything on this page is the behavior of the shipped tool, not aspiration.
+      The guided run described below ships in <strong>v0.2.0</strong>; every other section applies from v0.1.1 onward.</p>
+
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>sembl-stack runs the full pipeline around an AI coding agent and makes it accountable.
+        The pipeline is nine stages; three you should understand before anything else:</p>
+        <ul>
+          <li><strong>Bounds</strong> — before the agent runs, the task is turned into a declared contract:
+          which paths may change (<code class="inl">editable_paths</code>), which must not
+          (<code class="inl">forbidden_areas</code>), and how much churn is acceptable
+          (<code class="inl">churn_budget</code>).</li>
+          <li><strong>Execute in a sandbox</strong> — the agent writes in a disposable clone of your repo.
+          Your working tree is never touched during a run.</li>
+          <li><strong>The gate</strong> — <a href="https://sembl.vercel.app">Sembl</a> judges the <em>actual diff</em>
+          against the bounds and returns PASS, WARN, or BLOCK, deterministically. A BLOCK is fed back to the
+          agent as a retry; it is never applied and never merged.</li>
+        </ul>
+        <p>What sembl-stack does <em>not</em> promise: that the model writes better code. It promises the
+        process around the model is correct, recorded, and can't be talked out of its verdict.</p>
+      </section>
+
+      <section id="install">
+        <h2>Install</h2>
+        <div class="codeblock"><code>pip install sembl-stack</code></div>
+        <p>Requirements:</p>
+        <ul>
+          <li><strong>Python 3.10+</strong></li>
+          <li><strong>git</strong> on PATH — the sandbox stage clones your repo, so runs happen inside git repositories</li>
+          <li>Optionally, a coding agent for real runs: Claude Code, Aider, or OpenCode (see
+          <a href="#executors">Executors</a>). Without one, the <code class="inl">mock</code> executor
+          runs the whole pipeline with zero credentials.</li>
+        </ul>
+        <p>The core install includes the gate (<code class="inl">sembl</code>), the LangGraph
+        orchestrator, MCP transport, and the guided run. There is nothing extra to install for the
+        default experience.</p>
+      </section>
+
+      <section id="guided-run">
+        <h2>The guided run</h2>
+        <p>Bare <code class="inl">sembl-stack</code> in a repo directory starts an inline, step-by-step
+        run in your own terminal — arrow-key choices and plain text prompts, in the style of the
+        Claude Code / Codex CLIs. No flags, no YAML editing, no separate app.</p>
+
+        <h3>1 &middot; Repository</h3>
+        <p>The guide confirms the directory it detected. If it isn't a git repository, you're offered a
+        safe demo scaffold — a tiny module, a git repo, and a starter task, created in place without
+        touching anything that exists. Decline it and the guide tells you exactly what to do instead
+        (<code class="inl">git init</code> + commit, then relaunch).</p>
+
+        <h3>2 &middot; Agent &amp; keys</h3>
+        <p>One list of every way sembl-stack can run AI work, with <em>live</em> status — is Claude
+        Code installed, which API-key environment variables are set, is OpenCode on PATH. Options you
+        can't use yet are greyed out with the concrete fix next to them. Nothing here ever asks you to
+        paste an API key: sembl-stack stores the <em>name</em> of the environment variable, never the value.</p>
+        <div class="codeblock"><code><span class="c">? How should AI work run?</span>
+<span class="g">&#10095; Claude Code (your login)      found: C:\...\claude.CMD</span>
+  API key (env var)             none of ANTHROPIC_API_KEY, OPENAI_API_KEY, OPENROUTER_API_KEY are set
+  OpenCode (local/BYO model)    not found on PATH — install and ensure `opencode` is on PATH
+  No AI — preview the mechanics always available (deterministic demo executor)</code></div>
+        <p>Your choice is saved as a profile (<code class="inl">~/.sembl/profile.json</code>) and the
+        step is skipped on the next run. Re-open it any time with
+        <code class="inl">sembl-stack --reconfigure</code>.</p>
+
+        <h3>3 &middot; The task</h3>
+        <p>Describe the change in plain English, then say which paths the agent may touch — prefilled
+        with your repo's top-level directories, and with your previous answers on later runs. The guide
+        writes <code class="inl">task.yaml</code> and <code class="inl">bounds.json</code> for you; you
+        never edit them by hand. Typos in paths are caught at the prompt
+        (<code class="inl">src/componenets doesn't exist — did you mean src/components/?</code>),
+        because bounds pointing at a directory that doesn't exist would silently constrain the agent to nothing.</p>
+
+        <h3>4 &middot; The run</h3>
+        <p>The loop streams as it happens — including the part most tools hide, a first attempt getting
+        blocked and retried:</p>
+        <div class="codeblock"><code>  [+] bounds
+  [ ] execute    attempt 1 — agent writing (sandboxed)…
+  [+] execute    attempt 1
+  <span class="r">[x] gate       BLOCK</span>
+  [+] execute    attempt 2
+  <span class="g">[+] gate       PASS</span>
+
+  <span class="g">PASS</span>  (after 2 attempts)
+
+  receipt: .sembl/runs/20260704-175743-dc5901/
+  apply:   sembl-stack apply 20260704-175743-dc5901</code></div>
+        <p>The verdict ends with the one next command. Nothing has touched your working tree yet —
+        <code class="inl">apply</code> is the explicit step that does.</p>
+        <p>A guided run and a headless <code class="inl">sembl-stack loop</code> are byte-identical:
+        same adapters, same artifacts, same verdicts. The guide is a front-end to the machinery, not a
+        different machine.</p>
+      </section>
+
+      <section id="concepts">
+        <h2>Artifacts &amp; the run store</h2>
+        <p>Every hand-off between stages is a typed, serialized artifact. Every run leaves all of them
+        on disk under <code class="inl">.sembl/runs/&lt;run-id&gt;/</code>:</p>
+        <div class="codeblock"><code><span class="c">.sembl/runs/20260704-175743-dc5901/</span>
+&#9500;&#9472; task.json          <span class="c"># what was asked</span>
+&#9500;&#9472; bounds.json        <span class="c"># the declared contract the gate enforced</span>
+&#9500;&#9472; change.json        <span class="c"># the real unified diff the executor produced</span>
+&#9500;&#9472; verdict.json       <span class="c"># PASS/WARN/BLOCK + reasons + the diff's SHA-256</span>
+&#9500;&#9472; merge-record.json  <span class="c"># written at merge: what shipped, under whose PASS</span>
+&#9492;&#9472; trace.json         <span class="c"># every stage transition, timed</span></code></div>
+        <p>This is the paper trail. If a change reached production through sembl-stack, this directory
+        answers how: what was asked, what contract was declared, what diff was actually produced, what
+        the gate said about it, and who merged it under which verdict. Inspect any run with
+        <code class="inl">sembl-stack runs &lt;id&gt;</code>.</p>
+      </section>
+
+      <section id="commands">
+        <h2>Command reference</h2>
+        <p>Bare <code class="inl">sembl-stack</code> is the guided run. Everything below is the same
+        machinery, scriptable.</p>
+
+        <h3>Daily commands</h3>
+        <table class="docs-table">
+          <tr><td><code>sembl-stack</code></td>
+              <td>The guided run: repo &rarr; agent &amp; keys &rarr; task &rarr; watch the gated loop.
+              <code class="inl">--reconfigure</code> re-opens the agent step.</td></tr>
+          <tr><td><code>init</code></td>
+              <td>Scaffold <code class="inl">sembl.stack.yaml</code> + a starter
+              <code class="inl">task.yaml</code> + <code class="inl">bounds.json</code> from a preset
+              (<code class="inl">--preset just-gate | gate+sandbox | full-loop</code>). In a fresh
+              directory it also creates the demo module and git repo, so the starter loop is runnable
+              immediately.</td></tr>
+          <tr><td><code>doctor</code></td>
+              <td>Config-aware preflight: reads your config, then checks exactly the tools and
+              credentials <em>those</em> layers need — git, the executor CLI, key env vars, a bounds
+              source. Run it whenever something fails.</td></tr>
+          <tr><td><code>loop task.yaml</code></td>
+              <td>The full wiring headlessly: plan &rarr; execute &rarr; gate, retry on BLOCK, record
+              the run. What CI calls. <code class="inl">run</code> is an alias.</td></tr>
+          <tr><td><code>runs [&lt;id&gt;]</code></td>
+              <td>List recorded runs, or inspect one run's complete artifact trail.</td></tr>
+          <tr><td><code>apply &lt;run-id&gt;</code></td>
+              <td>Apply a run's accepted patch to your real tree. Recomputes the patch hash against the
+              verdict's recorded subject first — a verdict issued for a different diff, or a BLOCK, is
+              refused.</td></tr>
+        </table>
+
+        <h3>Pipeline stages, individually</h3>
+        <p>Each stage is also a standalone command, consuming and producing artifact files — useful for
+        wiring sembl-stack into an existing pipeline one piece at a time.</p>
+        <table class="docs-table">
+          <tr><td><code>bounds</code></td><td>L2: Task &rarr; Bounds.</td></tr>
+          <tr><td><code>specgraph</code></td><td>L2: Task(+Bounds) &rarr; SpecGraph.</td></tr>
+          <tr><td><code>context</code></td><td>L1: index the repo with the context graph and report its size.</td></tr>
+          <tr><td><code>execute</code></td><td>L3: Task + Bounds &rarr; Change (runs the configured agent).</td></tr>
+          <tr><td><code>verify</code></td><td>L5: Change + Bounds &rarr; Verdict (the gate, standalone).</td></tr>
+          <tr><td><code>review</code></td><td>L5.5: diff &rarr; advisory ReviewReport. A signal, never a gate.</td></tr>
+          <tr><td><code>reconcile</code></td><td>L5.5: SpecGraph + CodeGraph &rarr; advisory alignment report
+              (<code class="inl">--live</code> runs it against the indexed repo).</td></tr>
+          <tr><td><code>merge</code></td><td>L6.5: Verdict(PASS) &rarr; MergeRecord. Refuses to ship files the
+              verdict never saw.</td></tr>
+          <tr><td><code>deploy</code></td><td>L7: Verdict(PASS) &rarr; Delivery.</td></tr>
+          <tr><td><code>postdeploy</code></td><td>L8: Delivery &rarr; Verdict — gate the live deployment
+              (health + payload), trigger rollback on failure.</td></tr>
+        </table>
+
+        <h3>Introspection</h3>
+        <table class="docs-table">
+          <tr><td><code>layers</code></td><td>List every available adapter per layer.</td></tr>
+          <tr><td><code>dash</code></td><td>Live run dashboard (optional TUI:
+              <code class="inl">pip install "sembl-stack[tui]"</code>). The same data is always available
+              as text via <code class="inl">runs</code>.</td></tr>
+          <tr><td><code>rsi</code></td><td>Per-executor iterations-to-green and cost readout across recorded runs.</td></tr>
+        </table>
+      </section>
+
+      <section id="config">
+        <h2>Configuration</h2>
+        <p>One file: <code class="inl">sembl.stack.yaml</code> in your repo. This is the full shape,
+        as scaffolded by <code class="inl">init --preset full-loop</code>:</p>
+        <div class="codeblock"><code><span class="y">layers:</span>
+  <span class="y">spec:</span> sembl          <span class="c"># L2 — task becomes bounds</span>
+  <span class="y">execute:</span> claude      <span class="c"># L3 — claude | aider | opencode | mock</span>
+  <span class="y">sandbox:</span> clone       <span class="c"># L4 — clone | worktree</span>
+  <span class="y">verify:</span> sembl        <span class="c"># L5 — the gate</span>
+<span class="y">transport:</span>
+  <span class="y">spec:</span> cli            <span class="c"># cli | mcp</span>
+  <span class="y">verify:</span> cli
+<span class="y">options:</span>
+  <span class="y">execute:</span>
+    <span class="y">model:</span>             <span class="c"># blank = the operator's default model</span>
+    <span class="y">timeout:</span> 900       <span class="c"># seconds before an attempt counts as failed</span>
+<span class="y">loop:</span>
+  <span class="y">max_attempts:</span> 3
+  <span class="y">strict:</span> true         <span class="c"># WARN escalates to BLOCK when strict</span>
+<span class="y">tracing:</span>
+  <span class="y">langfuse:</span> false</code></div>
+        <p><strong>Precedence</strong> — how the effective config is resolved, identically for the
+        guided run and <code class="inl">loop</code>:</p>
+        <ol>
+          <li>A <code class="inl">sembl.stack.yaml</code> in the repo wins outright.</li>
+          <li>Otherwise, your saved profile (<code class="inl">~/.sembl/profile.json</code> — the
+          agent-&amp;-keys choice from the guided run) supplies the executor.</li>
+          <li>Otherwise, built-in defaults.</li>
+        </ol>
+        <p>Swapping a layer is a one-line edit — <code class="inl">execute: aider</code> — and the rest
+        of the pipeline doesn't notice, because stages only ever see each other's artifacts.</p>
+
+        <h3>task.yaml</h3>
+        <div class="codeblock"><code><span class="y">text:</span> "Add a live character counter under the feedback textarea"
+<span class="y">repo:</span> "."
+<span class="c"># spec_path: "./specs/001-feature"   # optional: a Spec Kit feature dir / tasks.md</span></code></div>
+        <p>Bounds come from <code class="inl">spec_path</code> when present, otherwise from a
+        <code class="inl">bounds.json</code> next to the task file:</p>
+        <div class="codeblock"><code>{
+  "editable_paths": ["src/components/"],
+  "forbidden_areas": ["supabase/", "scripts/"],
+  "churn_budget": { "max_files": 20, "max_lines": 1000 }
+}</code></div>
+      </section>
+
+      <section id="presets">
+        <h2>Presets</h2>
+        <table class="docs-table">
+          <tr><td><code>just-gate</code></td>
+              <td>Gate any diff, nothing else. Needs only <code class="inl">sembl</code>. The smallest
+              possible adoption: your diff, the bounds, a verdict.</td></tr>
+          <tr><td><code>gate+sandbox</code> <span class="docs-note">(default)</span></td>
+              <td>The entire loop with the deterministic mock executor — zero API keys, zero cost. The
+              mock deliberately misbehaves on its first attempt so you can watch BLOCK &rarr; feedback
+              &rarr; retry &rarr; PASS work before connecting a real agent.</td></tr>
+          <tr><td><code>full-loop</code></td>
+              <td>A real agent writes, the sandbox contains, Sembl gates. Requires an executor
+              (see below).</td></tr>
+        </table>
+      </section>
+
+      <section id="executors">
+        <h2>Executors &amp; credentials</h2>
+        <table class="docs-table">
+          <tr><td><code>claude</code></td>
+              <td>Claude Code, driven headlessly (<code class="inl">claude -p</code>) under
+              <strong>your own login</strong>. sembl-stack never handles or stores a token — install
+              Claude Code, run <code class="inl">claude</code> once to log in, done.</td></tr>
+          <tr><td><code>aider</code></td>
+              <td>Aider, using an API key from an environment variable.</td></tr>
+          <tr><td><code>opencode</code></td>
+              <td>OpenCode — local or bring-your-own-model. Needs <code class="inl">opencode</code> on PATH.</td></tr>
+          <tr><td><code>mock</code></td>
+              <td>Deterministic demo executor. No credentials, no network, same pipeline.</td></tr>
+        </table>
+        <p>For API-key executors, sembl-stack recognizes <code class="inl">ANTHROPIC_API_KEY</code>,
+        <code class="inl">OPENAI_API_KEY</code>, and <code class="inl">OPENROUTER_API_KEY</code>. The
+        profile stores which <em>variable name</em> to use — the value stays in your environment, is
+        never written to disk by sembl-stack, and is scrubbed from recorded executor output.</p>
+      </section>
+
+      <section id="verdicts">
+        <h2>Verdicts, BLOCK &amp; retry</h2>
+        <p>The gate returns one of three verdicts about a diff, judged against the bounds:</p>
+        <table class="docs-table">
+          <tr><td><code class="v-pass">PASS</code></td>
+              <td>Every changed file is inside <code class="inl">editable_paths</code>, nothing touches
+              <code class="inl">forbidden_areas</code>, churn is within budget.</td></tr>
+          <tr><td><code class="v-warn">WARN</code></td>
+              <td>Advisory findings. Under <code class="inl">strict: true</code> (the default), WARN
+              escalates to BLOCK — the loop treats it as a failure.</td></tr>
+          <tr><td><code class="v-block">BLOCK</code></td>
+              <td>The diff violated the contract. The verdict's reasons are fed back to the executor as
+              context and the loop retries, up to <code class="inl">max_attempts</code>. A BLOCK is
+              never applied, never merged.</td></tr>
+        </table>
+        <p>The verdict is deterministic: the same diff against the same bounds always produces the same
+        answer. There is no model in the gate to argue with.</p>
+      </section>
+
+      <section id="binding">
+        <h2>The verdict binding</h2>
+        <p>Most agent pipelines stop at "the check passed." sembl-stack binds every verdict to the
+        exact change it judged:</p>
+        <ul>
+          <li>Every verdict is stamped with the <strong>SHA-256 and file set</strong> of the diff it judged.</li>
+          <li><code class="inl">apply</code> recomputes the patch hash and refuses a verdict issued for
+          a different patch.</li>
+          <li><code class="inl">merge</code> refuses if the merge would ship files the verdict never saw.</li>
+          <li>The escape hatch exists (<code class="inl">--skip-binding-check</code>) but its use is
+          recorded permanently in the MergeRecord. There is no quiet way past the gate.</li>
+        </ul>
+        <p>The consequence: a PASS can only ever ship the change it was issued for. Swap the diff after
+        the verdict and the pipeline stops.</p>
+      </section>
+
+      <section id="review">
+        <h2>Advisory review (L5.5)</h2>
+        <p>Separate from the gate, the stack can run a code-<em>quality</em> pass over the same diff.
+        It is advisory by design — a signal for humans, never a merge condition, because a
+        probabilistic reviewer must not hold override power over a deterministic contract.</p>
+        <table class="docs-table">
+          <tr><td><code>llm</code></td>
+              <td>Bring-your-own agent-CLI reviewer — by default the same Claude Code login that can
+              drive the executor. No extra account.</td></tr>
+          <tr><td><code>coderabbit</code></td>
+              <td>CodeRabbit CLI, if you use it. An optional second opinion.</td></tr>
+        </table>
+        <p>Run it with <code class="inl">sembl-stack review</code>. The two axes are complementary and
+        measured: the gate catches contract violations reviewers miss, reviewers catch quality issues
+        outside the contract's vocabulary.</p>
+      </section>
+
+      <section id="ci">
+        <h2>Headless &amp; CI use</h2>
+        <p>Everything the guide does is a command, so a gated loop drops into CI directly:</p>
+        <div class="codeblock"><code><span class="c"># .github/workflows/gated-change.yml (job steps)</span>
+- run: pip install sembl-stack
+- run: sembl-stack doctor
+- run: sembl-stack loop task.yaml        <span class="c"># exits non-zero if no PASS</span>
+- run: sembl-stack runs                  <span class="c"># the receipt, in the job log</span></code></div>
+        <p>Because runs live in <code class="inl">.sembl/runs/</code>, the artifact trail can be
+        uploaded as a build artifact — the audit record travels with the build that produced it.
+        <code class="inl">apply</code> and <code class="inl">merge</code> keep their binding checks in
+        CI too; there is no CI-mode bypass.</p>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <table class="docs-table">
+          <tr><td><code>sembl-stack doctor</code></td>
+              <td>Always the first move. It reads your actual config and checks exactly what those
+              layers need, with the one concrete fix per failing check.</td></tr>
+          <tr><td>"not a git repository"</td>
+              <td>The sandbox clones your repo, so runs need git. <code class="inl">git init</code> +
+              one commit, or accept the guide's demo scaffold in an empty directory.</td></tr>
+          <tr><td>"could not derive bounds"</td>
+              <td>The task has no bounds source: add a <code class="inl">bounds.json</code> next to
+              <code class="inl">task.yaml</code>, or set <code class="inl">spec_path</code>. The guided
+              run and <code class="inl">init</code> always create one.</td></tr>
+          <tr><td>Executor not found / not logged in</td>
+              <td>The agent step shows live status and the exact fix per option. Headlessly:
+              <code class="inl">doctor</code> reports the same checks.</td></tr>
+          <tr><td>Every attempt BLOCKS</td>
+              <td>Read the verdict's reasons in <code class="inl">runs &lt;id&gt;</code> — most often
+              the bounds are narrower than the change actually requires. Widen
+              <code class="inl">editable_paths</code> deliberately; that's the contract doing its job,
+              not a bug.</td></tr>
+          <tr><td>Wrong saved agent</td>
+              <td><code class="inl">sembl-stack --reconfigure</code> re-opens the agent &amp; keys step.</td></tr>
+        </table>
+        <p>Found a bug? <a href="https://github.com/speedvibecode/sembl-stack/issues">Open an issue</a>.
+        Security reports: see <a href="https://github.com/speedvibecode/sembl-stack/blob/master/SECURITY.md">SECURITY.md</a>.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="f-brand">
+        <p>Agents write the code. The stack makes the whole pipeline accountable.</p>
+      </div>
+      <div class="f-links">
+        <div class="f-col">
+          <h4>Project</h4>
+          <a href="../">sembl-stack home</a>
+          <a href="https://github.com/speedvibecode/sembl-stack">GitHub</a>
+          <a href="https://pypi.org/project/sembl-stack/">PyPI</a>
+        </div>
+        <div class="f-col">
+          <h4>Family</h4>
+          <a href="https://sembl.vercel.app">Sembl - the gate</a>
+          <a href="https://sembl.vercel.app/docs">Gate documentation</a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap"><div class="copyright">Copyright 2026 Sembl - Apache-2.0 licensed</div></div>
+  </footer>
+</body>
+</html>
