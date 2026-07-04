@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sembl-stack - The swappable software factory with an accountable spine</title>
+  <meta name="description" content="sembl-stack runs the whole pipeline around an AI coding agent: spec becomes bounds, an agent writes in a sandbox, the sembl gate judges the real diff, PASS merges, deploys, and a post-deploy gate confirms or rolls back. Every stage is a swappable adapter behind one typed contract. Every artifact is recorded.">
+  <meta property="og:title" content="sembl-stack - task in, accountable change in production out">
+  <meta property="og:description" content="Plan, execute, contain, gate, merge, deploy, verify in prod - nine stages, one typed artifact contract, every layer swappable with one line of config. Built around the sembl gate.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0a0a0b">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=1">
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="wrap">
+      <a class="brand" href="#top" aria-label="sembl-stack home">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7cd4df"/><stop offset="0.55" stop-color="#6aa6ff"/><stop offset="1" stop-color="#ccff00"/>
+            </linearGradient>
+          </defs>
+          <g stroke="url(#lg1)" stroke-width="1.5" stroke-linejoin="round">
+            <path d="M16 3 L28 9 L16 15 L4 9 Z"/>
+            <path d="M4 15.5 L16 21.5 L28 15.5"/>
+            <path d="M4 22 L16 28 L28 22"/>
+          </g>
+          <circle cx="28" cy="9" r="2.4" fill="#ccff00"/>
+        </svg>
+        <span>sembl<span class="suffix">-stack</span></span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#demo">Watch a run</a>
+        <a href="#stages">The stages</a>
+        <a href="#contract">The contract</a>
+        <a href="#swap">Swappable</a>
+        <a href="#accountable">Accountable</a>
+        <a href="#install">Install</a>
+        <a href="https://sembl.vercel.app" title="Sembl - the gate this stack is built around">The gate &nearr;</a>
+        <a class="ghost" href="https://github.com/speedvibecode/sembl-stack">
+          <svg class="gh-ico" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014-0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="wrap">
+        <span class="status-chip" data-reveal><span class="dot"></span>Open source &middot; Apache-2.0</span>
+        <h1 data-reveal>Task in. <span class="accent">Accountable change in production</span> out.</h1>
+        <p class="hero-lede" data-reveal>sembl-stack runs the whole pipeline around your coding agent: a spec becomes declared bounds, an agent writes inside a disposable sandbox, the <a href="https://sembl.vercel.app" style="color:var(--cyan); text-decoration:underline; text-underline-offset:2px;">sembl gate</a> judges the real diff against those bounds, a PASS merges and deploys, and a post-deploy gate confirms it's healthy - or rolls it back. <strong>Every stage is a swappable adapter behind one typed contract.</strong> The stack doesn't promise the model writes better code; it guarantees the process around the model is correct, recorded, and can't be talked out of its verdict.</p>
+        <div class="hero-actions" data-reveal>
+          <button class="copy-cmd" id="copyInstall" type="button" aria-label="Copy install command">
+            <span><span class="prompt">$</span> pip install sembl-stack</span>
+            <span class="hint">click to copy</span>
+          </button>
+          <a class="btn btn-ghost" href="#demo">Watch a run &darr;</a>
+        </div>
+      </div>
+
+      <!-- Demo: scripted replay of a real loop -->
+      <div class="wrap demo" id="demo">
+        <div class="demo-frame" data-reveal aria-label="Animated demo of a sembl-stack run">
+          <div class="terminal">
+            <div class="terminal-bar"><i></i><i></i><i></i><span>sembl-stack loop task.yaml</span>
+              <button class="replay" id="replayBtn" type="button">&#8635; replay</button>
+            </div>
+            <div class="terminal-body" id="demoTerm" aria-live="off"></div>
+          </div>
+          <aside class="rail" aria-label="Pipeline stages">
+            <div class="rail-title">Pipeline</div>
+            <div class="rail-stages" id="railStages">
+              <div class="stage" data-stage="l2"><span class="pip"></span><span class="lx">L2</span><span class="nm">bounds</span></div>
+              <div class="stage" data-stage="l3"><span class="pip"></span><span class="lx">L3</span><span class="nm">execute</span></div>
+              <div class="stage" data-stage="l4"><span class="pip"></span><span class="lx">L4</span><span class="nm">sandbox</span></div>
+              <div class="stage" data-stage="l5"><span class="pip"></span><span class="lx">L5</span><span class="nm">gate</span></div>
+              <div class="stage" data-stage="l65"><span class="pip"></span><span class="lx">L6.5</span><span class="nm">merge</span></div>
+              <div class="stage" data-stage="l7"><span class="pip"></span><span class="lx">L7</span><span class="nm">deploy</span></div>
+              <div class="stage" data-stage="l8"><span class="pip"></span><span class="lx">L8</span><span class="nm">verify in prod</span></div>
+            </div>
+            <div class="rail-verdict" id="railVerdict">VERDICT<b>&mdash;</b></div>
+          </aside>
+        </div>
+        <p class="demo-caption" data-reveal>A scripted replay of a real loop - including the part vendors don't show you: the first attempt gets <span style="color:var(--coral)">BLOCKED</span> and retried. Run it yourself: <a href="https://github.com/speedvibecode/sembl-stack#quickstart">quickstart &rarr;</a></p>
+      </div>
+    </section>
+
+    <!-- Stages -->
+    <section class="section" id="stages">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <span class="kicker">The stage map</span>
+          <h2>Nine stages. One wire between them.</h2>
+          <p>Each stage consumes typed artifacts and produces typed artifacts - that's the whole interface. A stage doesn't know or care what implements its neighbors.</p>
+        </div>
+        <div class="stage-map" data-reveal-stagger>
+          <div class="stage-row"><span class="lx">L0</span><span class="nm">Protocol &amp; hub</span><span class="ds">The typed artifact contract and the stage Protocol every layer plugs into.</span><span class="who own">we own</span></div>
+          <div class="stage-row"><span class="lx">L1</span><span class="nm">Repo intel</span><span class="ds">Code-graph context for the task - symgraph, codebase-memory, or nothing.</span><span class="who">adapter</span></div>
+          <div class="stage-row"><span class="lx">L2</span><span class="nm">Spec &rarr; bounds</span><span class="ds">The task becomes a bounds contract: editable paths, forbidden areas, churn budget.</span><span class="who own">we own</span></div>
+          <div class="stage-row"><span class="lx">L3</span><span class="nm">Execute</span><span class="ds">An agent writes the change. Claude Code, Aider, OpenCode - the stack never grades its own executor.</span><span class="who">adapter</span></div>
+          <div class="stage-row"><span class="lx">L4</span><span class="nm">Sandbox</span><span class="ds">The change happens in a disposable clone. A bad diff can't hurt the real tree.</span><span class="who">adapter</span></div>
+          <div class="stage-row"><span class="lx">L5</span><span class="nm">Verify</span><span class="ds">The sembl gate judges the real diff against the bounds: PASS / WARN / BLOCK, deterministically.</span><span class="who gate">the gate</span></div>
+          <div class="stage-row"><span class="lx">L6</span><span class="nm">Orchestrate</span><span class="ds">The loop: plan &rarr; execute &rarr; gate, retry on BLOCK, trace everything.</span><span class="who own">we own</span></div>
+          <div class="stage-row"><span class="lx">L6.5</span><span class="nm">Merge</span><span class="ds">Only a PASS verdict bound to this exact change can merge. The MergeRecord says who let it through, and why.</span><span class="who own">we own</span></div>
+          <div class="stage-row"><span class="lx">L7 / L8</span><span class="nm">Deploy &amp; verify in prod</span><span class="ds">Ship, then gate production itself: health and payload checks confirm the delivery - or trigger a rollback.</span><span class="who gate">the gate</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Artifact contract -->
+    <section class="section" id="contract">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <span class="kicker">The artifact contract</span>
+          <h2>Stages talk in artifacts, not in prose.</h2>
+          <p>Every hand-off in the pipeline is a typed, serialized artifact in the run store. That's what makes stages swappable - and what makes a run auditable after the fact: <code class="inl">.sembl/runs/&lt;id&gt;/</code> holds the complete paper trail of how a change reached production.</p>
+        </div>
+        <div class="split">
+          <ul class="artifact-list" data-reveal-stagger>
+            <li><code>Task</code><span>what was asked - the input to everything</span></li>
+            <li><code>Bounds</code><span>the contract: editable paths, forbidden areas, churn budget</span></li>
+            <li><code>Change</code><span>the real unified diff the executor produced</span></li>
+            <li><code>Verdict</code><span>PASS / WARN / BLOCK, with reasons, bound to the exact diff it judged</span></li>
+            <li><code>MergeRecord</code><span>what merged, under which verdict, with the binding check's outcome</span></li>
+            <li><code>Delivery</code><span>what deployed where - the input to the post-deploy gate</span></li>
+            <li><code>Trace</code><span>every stage transition, timed</span></li>
+          </ul>
+          <div data-reveal>
+            <span class="cb-label">a run, on disk</span>
+            <div class="codeblock"><code><span class="c">.sembl/runs/2ca41f/</span>
+&#9500;&#9472; task.json          <span class="c"># what was asked</span>
+&#9500;&#9472; bounds.json        <span class="c"># the declared contract</span>
+&#9500;&#9472; change.json        <span class="c"># the actual diff</span>
+&#9500;&#9472; verdict.json       <span class="c"># the gate's judgement + subject binding</span>
+&#9500;&#9472; merge-record.json  <span class="c"># what shipped, and under whose PASS</span>
+&#9492;&#9472; trace.json         <span class="c"># the timeline</span></code></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Swappable -->
+    <section class="section" id="swap">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <span class="kicker">Swappable by construction</span>
+          <h2>Change a layer with one line. Not one refactor.</h2>
+          <p>The stack takes no side in the agent wars. If a better executor ships next month, you swap it in <code class="inl">sembl.stack.yaml</code> and the rest of the pipeline doesn't notice. The same goes for the sandbox, the repo-intel layer, and the deploy target.</p>
+        </div>
+        <div class="split">
+          <div data-reveal>
+            <span class="cb-label">sembl.stack.yaml</span>
+            <div class="codeblock"><code><span class="y">execute:</span>  claude      <span class="c"># &rarr; aider | opencode | yours</span>
+<span class="y">sandbox:</span>  clone       <span class="c"># disposable worktree</span>
+<span class="y">intel:</span>    symgraph
+<span class="y">gate:</span>     sembl       <span class="c"># the one layer that never lies</span>
+<span class="y">deploy:</span>   vercel</code></div>
+          </div>
+          <div class="steps" data-reveal-stagger>
+            <div class="step">
+              <div class="idx">01</div>
+              <div>
+                <h3>We own exactly three things</h3>
+                <p>The artifact contract + stage Protocol, the gate (L5 and the post-deploy L8), and the glue that lets layers be replaced. Everything else is deliberately someone else's best-in-class tool behind an interface.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="idx">02</div>
+              <div>
+                <h3>Executors are interchangeable</h3>
+                <p>Three ship today - Claude Code, Aider, OpenCode - and adding one is an adapter, not a fork. The gate treats them all identically: it only ever sees the diff.</p>
+                <div class="tools"><span class="tag">claude</span><span class="tag">aider</span><span class="tag">opencode</span><span class="tag">mock (no keys)</span></div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="idx">03</div>
+              <div>
+                <h3>Presets to start from</h3>
+                <p><code class="inl">just-gate</code> gates any diff with nothing but sembl installed. <code class="inl">gate+sandbox</code> runs the whole loop with a mock executor and no API keys. <code class="inl">full-loop</code> is the real thing.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accountability -->
+    <section class="section" id="accountable">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <span class="kicker">The accountable spine</span>
+          <h2>A verdict is bound to the change it judged.</h2>
+          <p>Most agent pipelines stop at "the check passed." sembl-stack's spine goes further: <strong>a verdict can only ship the exact change it was issued for.</strong></p>
+        </div>
+        <div class="steps" data-reveal-stagger>
+          <div class="step">
+            <div class="idx">&#35;</div>
+            <div>
+              <h3>Verdicts carry their subject</h3>
+              <p>Every verdict is stamped with the SHA-256 and file set of the diff it judged. <code class="inl">apply</code> recomputes the hash and refuses a verdict that wasn't issued for that patch; <code class="inl">merge</code> refuses if the merge would ship files the verdict never saw.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="idx">&#8856;</div>
+            <div>
+              <h3>BLOCK means blocked</h3>
+              <p>A BLOCK verdict is never applied and never merged - the loop retries the executor instead. Overrides exist (<code class="inl">--skip-binding-check</code>), but they're recorded in the MergeRecord forever. There is no quiet way past the gate.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="idx">&#8635;</div>
+            <div>
+              <h3>Production is gated too</h3>
+              <p>After deploy, the L8 gate checks the live delivery - health and payload, deterministically - and triggers a rollback when it fails. Proven live against a real deployment, not a diagram.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gate band -->
+    <section class="section">
+      <div class="wrap">
+        <div class="gate-band" data-reveal>
+          <div>
+            <h3>The gate at the center is <span class="g">Sembl</span> - and it stands alone.</h3>
+            <p>If you don't want the whole factory, take just the gate: <code class="inl">pip install sembl</code> gives you the deterministic PASS / WARN / BLOCK verdict in CI, pre-commit, or over MCP. The stack is what you graduate to when you want the gate wired through merge, deploy, and production.</p>
+          </div>
+          <a class="btn-gate" href="https://sembl.vercel.app">Meet the gate &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Install -->
+    <section class="section" id="install">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <span class="kicker">Install</span>
+          <h2>From zero to a gated loop in four commands.</h2>
+          <p>Start with the <code class="inl">gate+sandbox</code> preset - it runs the entire pipeline with a mock executor, so you can watch the loop work before you connect a real agent or spend a token.</p>
+        </div>
+        <div class="install-cols" data-reveal-stagger>
+          <div class="cmd-block">
+            <div class="cmd-lbl">Install &amp; scaffold</div>
+            <pre><code>pip install sembl-stack sembl
+
+<span class="p"># scaffold sembl.stack.yaml + task.yaml from a preset</span>
+sembl-stack init
+sembl-stack doctor   <span class="p"># config-aware preflight</span></code></pre>
+          </div>
+          <div class="cmd-block">
+            <div class="cmd-lbl">Run the loop</div>
+            <pre><code><span class="p"># plan &rarr; execute &rarr; gate &rarr; retry-on-BLOCK</span>
+sembl-stack loop task.yaml
+
+sembl-stack runs             <span class="p"># inspect the run store</span>
+sembl-stack apply &lt;run-id&gt;   <span class="p"># apply the accepted patch</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="f-brand">
+        <a class="brand" href="#top" aria-label="sembl-stack home">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="lg2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#7cd4df"/><stop offset="0.55" stop-color="#6aa6ff"/><stop offset="1" stop-color="#ccff00"/>
+              </linearGradient>
+            </defs>
+            <g stroke="url(#lg2)" stroke-width="1.5" stroke-linejoin="round">
+              <path d="M16 3 L28 9 L16 15 L4 9 Z"/>
+              <path d="M4 15.5 L16 21.5 L28 15.5"/>
+              <path d="M4 22 L16 28 L28 22"/>
+            </g>
+            <circle cx="28" cy="9" r="2.4" fill="#ccff00"/>
+          </svg>
+          <span>sembl<span class="suffix">-stack</span></span>
+        </a>
+        <p>Agents write the code. The stack makes the whole pipeline accountable.</p>
+      </div>
+      <div class="f-links">
+        <div class="f-col">
+          <h4>Pipeline</h4>
+          <a href="#demo">Watch a run</a>
+          <a href="#stages">The stages</a>
+          <a href="#contract">The artifact contract</a>
+          <a href="#accountable">The accountable spine</a>
+        </div>
+        <div class="f-col">
+          <h4>Family</h4>
+          <a href="https://sembl.vercel.app">Sembl - the gate</a>
+          <a href="https://sembl.vercel.app/docs">Gate documentation</a>
+          <a href="https://pypi.org/project/sembl/">sembl on PyPI</a>
+        </div>
+        <div class="f-col">
+          <h4>Project</h4>
+          <a href="https://github.com/speedvibecode/sembl-stack">GitHub</a>
+          <a href="https://github.com/speedvibecode/sembl-stack/blob/master/docs/PROCESS-ACTION-PLAN.md">Architecture &amp; plan</a>
+          <a href="https://github.com/speedvibecode/sembl-stack/issues">Issues</a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap"><div class="copyright">Copyright 2026 Sembl - Apache-2.0 licensed</div></div>
+  </footer>
+
+  <script src="./main.js?v=1"></script>
+</body>
+</html>
