@@ -127,33 +127,61 @@
         step is skipped on the next run. Re-open it any time with
         <code class="inl">sembl-stack --reconfigure</code>.</p>
 
-        <h3>3 &middot; The task</h3>
-        <p>Describe the change in plain English, then say which paths the agent may touch — prefilled
-        with your repo's top-level directories, and with your previous answers on later runs. The guide
-        writes <code class="inl">task.yaml</code> and <code class="inl">bounds.json</code> for you; you
-        never edit them by hand. Typos in paths are caught at the prompt
-        (<code class="inl">src/componenets doesn't exist — did you mean src/components/?</code>),
-        because bounds pointing at a directory that doesn't exist would silently constrain the agent to nothing.</p>
+        <h3>3 &middot; Layers</h3>
+        <p>Every stage this factory runs, shown once per repo: <code class="inl">spec</code>,
+        <code class="inl">execute</code>, <code class="inl">sandbox</code>, <code class="inl">verify</code>,
+        <code class="inl">context</code>, <code class="inl">review</code>, <code class="inl">merge</code>,
+        <code class="inl">deploy</code>, <code class="inl">postdeploy</code>. Two are a real arrow-key choice
+        today — <code class="inl">context</code> (widen bounds along a coupling graph, or don't) and
+        <code class="inl">review</code> (a second-opinion diff reviewer: mock, CodeRabbit, or your own
+        agent-CLI) — plus the gate's strictness. The rest show their one current adapter, so the
+        swappable shape of the pipeline stays visible even before a second option exists for it. Your
+        picks are written to <code class="inl">sembl.stack.yaml</code> and skipped on the next run unless
+        you <code class="inl">--reconfigure</code>.</p>
 
-        <h3>4 &middot; The run</h3>
-        <p>The loop streams as it happens — including the part most tools hide, a first attempt getting
-        blocked and retried:</p>
-        <div class="codeblock"><code>  [+] bounds
+        <h3>4 &middot; The task</h3>
+        <p>Describe the change in plain English, then say which paths the agent may touch — prefilled
+        with your repo's top-level directories, and with your previous answers on later runs. If you
+        picked a real agent (Claude Code or OpenCode), you can ask it to suggest the paths itself: a
+        read-only, headless query scopes the task against your actual repo tree before any code gets
+        written, and the same suggest-and-filter flow works for the paths it must <em>not</em> touch
+        (secrets, CI config, lockfiles, infra). Every suggestion is filtered against paths that really
+        exist and shown to you to edit or accept — never applied silently. The guide writes
+        <code class="inl">task.yaml</code> and <code class="inl">bounds.json</code> for you; you never
+        edit them by hand. Typos are caught the same way
+        (<code class="inl">src/componenets doesn't exist — did you mean src/components/?</code>).</p>
+
+        <h3>5 &middot; The run</h3>
+        <p>The loop streams stage by stage as it actually happens — L1 says plainly when it's a no-op
+        instead of pretending to run, L4 shows the disposable clone opening each attempt, and a first
+        attempt getting blocked and retried is never hidden:</p>
+        <div class="codeblock"><code>  [&middot;] context     none configured — skipped
+  [+] bounds
+  [+] sandbox      attempt 1 — disposable clone
   [ ] execute    attempt 1 — agent writing (sandboxed)…
-  [+] execute    attempt 1
-  <span class="r">[x] gate       BLOCK</span>
-  [+] execute    attempt 2
-  <span class="g">[+] gate       PASS</span>
+  [+] execute      attempt 1
+  <span class="r">[x] gate         BLOCK</span>
+  [+] sandbox      attempt 2 — disposable clone
+  [+] execute      attempt 2
+  <span class="g">[+] gate         PASS</span>
 
   <span class="g">PASS</span>  (after 2 attempts)
 
   receipt: .sembl/runs/20260704-175743-dc5901/
   apply:   sembl-stack apply 20260704-175743-dc5901</code></div>
-        <p>The verdict ends with the one next command. Nothing has touched your working tree yet —
-        <code class="inl">apply</code> is the explicit step that does.</p>
-        <p>A guided run and a headless <code class="inl">sembl-stack loop</code> are byte-identical:
-        same adapters, same artifacts, same verdicts. The guide is a front-end to the machinery, not a
-        different machine.</p>
+        <p>Nothing has touched your working tree yet. A guided run and a headless
+        <code class="inl">sembl-stack loop</code> are byte-identical: same adapters, same artifacts, same
+        verdicts. The guide is a front-end to the machinery, not a different machine.</p>
+
+        <h3>6 &middot; Ship it</h3>
+        <p>On a PASS or WARN, the post-run menu offers <strong>Ship this change</strong>: apply the
+        judged patch to your real working tree (the same binding + dirty-tree guards
+        <code class="inl">sembl-stack apply</code> has — this is a shortcut to that code, never a bypass
+        of it), an optional commit, an advisory second-opinion review, then deploy (preview or
+        production) and a post-deploy health check, all through the exact adapters you picked in step 3.
+        Decline any step and nothing later happens. <code class="inl">merge</code> (a branch workflow)
+        isn't driven by the guide yet — the guided run doesn't manage feature branches — so it stays a
+        standalone command.</p>
       </section>
 
       <section id="concepts">

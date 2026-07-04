@@ -58,9 +58,9 @@
     <!-- Hero -->
     <section class="hero">
       <div class="wrap">
-        <span class="status-chip" data-reveal><span class="dot"></span>Open source &middot; Apache-2.0</span>
+        <span class="status-chip" data-reveal>Open source &middot; Apache-2.0</span>
         <h1 data-reveal>Task in. <span class="accent">Accountable change in production</span> out.</h1>
-        <p class="hero-lede" data-reveal>sembl-stack runs the whole pipeline around your coding agent: a spec becomes declared bounds, an agent writes inside a disposable sandbox, the <a href="https://sembl.vercel.app" style="color:var(--cyan); text-decoration:underline; text-underline-offset:2px;">sembl gate</a> judges the real diff against those bounds, a PASS merges and deploys, and a post-deploy gate confirms it's healthy - or rolls it back. <strong>Every stage is a swappable adapter behind one typed contract.</strong> The stack doesn't promise the model writes better code; it guarantees the process around the model is correct, recorded, and can't be talked out of its verdict.</p>
+        <p class="hero-lede" data-reveal>Type the task. Your agent scopes its own bounds and writes inside a disposable sandbox. The <a href="https://sembl.vercel.app" style="color:var(--cyan); text-decoration:underline; text-underline-offset:2px;">sembl gate</a> judges the real diff, not the model's word for it. A PASS merges, deploys, and a post-deploy gate confirms it's healthy - or rolls it back. <strong>Every stage is a swappable adapter behind one typed contract</strong>, and the guided run lets you pick each one before it ever touches your repo.</p>
         <div class="hero-actions" data-reveal>
           <button class="copy-cmd" id="copyInstall" type="button" aria-label="Copy install command">
             <span><span class="prompt">$</span> pip install sembl-stack</span>
@@ -101,7 +101,6 @@
     <section class="section" id="stages">
       <div class="wrap">
         <div class="section-head" data-reveal>
-          <span class="kicker">The stage map</span>
           <h2>Nine stages. One wire between them.</h2>
           <p>Each stage consumes typed artifacts and produces typed artifacts - that's the whole interface. A stage doesn't know or care what implements its neighbors.</p>
         </div>
@@ -124,7 +123,6 @@
     <section class="section" id="contract">
       <div class="wrap">
         <div class="section-head" data-reveal>
-          <span class="kicker">The artifact contract</span>
           <h2>Stages talk in artifacts, not in prose.</h2>
           <p>Every hand-off in the pipeline is a typed, serialized artifact in the run store. That's what makes stages swappable - and what makes a run auditable after the fact: <code class="inl">.sembl/runs/&lt;id&gt;/</code> holds the complete paper trail of how a change reached production.</p>
         </div>
@@ -156,9 +154,8 @@
     <section class="section" id="swap">
       <div class="wrap">
         <div class="section-head" data-reveal>
-          <span class="kicker">Swappable by construction</span>
           <h2>Change a layer with one line. Not one refactor.</h2>
-          <p>The stack takes no side in the agent wars. If a better executor ships next month, you swap it in <code class="inl">sembl.stack.yaml</code> and the rest of the pipeline doesn't notice. The same goes for the sandbox, the repo-intel layer, and the deploy target.</p>
+          <p>The stack takes no side in the agent wars. If a better executor ships next month, you swap it in <code class="inl">sembl.stack.yaml</code> and the rest of the pipeline doesn't notice. The same goes for the sandbox, the repo-intel layer, and the deploy target — and the guided run now asks you, per repo, one layer at a time.</p>
         </div>
         <div class="split">
           <div data-reveal>
@@ -192,6 +189,13 @@
                 <p><code class="inl">just-gate</code> gates any diff with nothing but sembl installed. <code class="inl">gate+sandbox</code> runs the whole loop with a mock executor and no API keys. <code class="inl">full-loop</code> is the real thing.</p>
               </div>
             </div>
+            <div class="step">
+              <div class="idx">04</div>
+              <div>
+                <h3>The agent scopes its own bounds</h3>
+                <p>Bare <code class="inl">sembl-stack</code> can ask your picked agent, headlessly and read-only, what it should and shouldn't touch for the task you typed - then filters the answer against your actual repo before it ever reaches the prompt. You still see it, edit it, confirm it.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -201,7 +205,6 @@
     <section class="section" id="accountable">
       <div class="wrap">
         <div class="section-head" data-reveal>
-          <span class="kicker">The accountable spine</span>
           <h2>A verdict is bound to the change it judged.</h2>
           <p>Most agent pipelines stop at "the check passed." sembl-stack's spine goes further: <strong>a verdict can only ship the exact change it was issued for.</strong></p>
         </div>
@@ -248,9 +251,8 @@
     <section class="section" id="install">
       <div class="wrap">
         <div class="section-head" data-reveal>
-          <span class="kicker">Install</span>
           <h2>From zero to a gated loop in four commands.</h2>
-          <p>Or in one: bare <code class="inl">sembl-stack</code> in your repo starts a guided run - agent &amp; keys with live status, the task in plain English, the loop streaming in your terminal. The commands below are the same machinery, scriptable. Full detail in the <a href="./docs/" style="color:var(--cyan); text-decoration:underline; text-underline-offset:2px;">documentation</a>.</p>
+          <p>Or in one: bare <code class="inl">sembl-stack</code> in your repo starts a guided run - repo, agent &amp; keys with live status, the layers you can swap, the task in plain English with AI-suggested bounds, then the loop streaming stage by stage in your terminal to a verdict you can ship from the same prompt. The commands below are the same machinery, scriptable. Full detail in the <a href="./docs/" style="color:var(--cyan); text-decoration:underline; text-underline-offset:2px;">documentation</a>.</p>
         </div>
         <div class="install-cols" data-reveal-stagger>
           <div class="cmd-block">
