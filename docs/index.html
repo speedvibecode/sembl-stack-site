@@ -404,7 +404,7 @@
         <div class="codeblock"><code><span class="c"># .github/workflows/gated-change.yml (job steps)</span>
 - run: pip install sembl-stack
 - run: sembl-stack doctor
-- run: sembl-stack loop task.yaml        <span class="c"># exits non-zero if no PASS</span>
+- run: sembl-stack loop task.yaml        <span class="c"># exits non-zero on BLOCK only (WARN exits 0)</span>
 - run: sembl-stack runs                  <span class="c"># the receipt, in the job log</span></code></div>
         <p>Because runs live in <code class="inl">.sembl/runs/</code>, the artifact trail can be
         uploaded as a build artifact — the audit record travels with the build that produced it.

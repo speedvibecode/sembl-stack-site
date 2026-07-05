@@ -106,7 +106,7 @@
         </div>
         <div class="stage-map" data-reveal-stagger>
           <div class="stage-row"><span class="lx">L0</span><span class="nm">Protocol &amp; hub</span><span class="ds">The typed artifact contract and the stage Protocol every layer plugs into.</span><span class="who own">we own</span></div>
-          <div class="stage-row"><span class="lx">L1</span><span class="nm">Repo intel</span><span class="ds">Code-graph context for the task - symgraph, codebase-memory, or nothing.</span><span class="who">adapter</span></div>
+          <div class="stage-row"><span class="lx">L1</span><span class="nm">Repo intel</span><span class="ds">Code-graph context for the task - symgraph, or nothing.</span><span class="who">adapter</span></div>
           <div class="stage-row"><span class="lx">L2</span><span class="nm">Spec &rarr; bounds</span><span class="ds">The task becomes a bounds contract: editable paths, forbidden areas, churn budget.</span><span class="who own">we own</span></div>
           <div class="stage-row"><span class="lx">L3</span><span class="nm">Execute</span><span class="ds">An agent writes the change. Claude Code, Aider, OpenCode - the stack never grades its own executor.</span><span class="who">adapter</span></div>
           <div class="stage-row"><span class="lx">L4</span><span class="nm">Sandbox</span><span class="ds">The change happens in a disposable clone. A bad diff can't hurt the real tree.</span><span class="who">adapter</span></div>
@@ -155,7 +155,7 @@
       <div class="wrap">
         <div class="section-head" data-reveal>
           <h2>Change a layer with one line. Not one refactor.</h2>
-          <p>The stack takes no side in the agent wars. If a better executor ships next month, you swap it in <code class="inl">sembl.stack.yaml</code> and the rest of the pipeline doesn't notice. The same goes for the sandbox, the repo-intel layer, and the deploy target — and the guided run now asks you, per repo, one layer at a time.</p>
+          <p>The stack takes no side in the agent wars. If a better executor ships next month, you swap it in <code class="inl">sembl.stack.yaml</code> and the rest of the pipeline doesn't notice — three real executors ship today (Claude Code, Aider, OpenCode). Every other layer sits behind the same typed seam, ready for a second adapter the same way; the guided run now asks you, per repo, one layer at a time.</p>
         </div>
         <div class="split">
           <div data-reveal>
