@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css?v=2">
-  <link rel="stylesheet" href="./docs.css?v=2">
+  <link rel="stylesheet" href="./docs.css?v=4">
 </head>
 <body class="docs-body">
   <header class="header">
@@ -45,21 +45,25 @@
   </header>
 
   <div class="docs-layout wrap">
-    <nav class="docs-nav" aria-label="Documentation sections">
-      <a href="#overview">Overview</a>
-      <a href="#install">Install</a>
-      <a href="#guided-run">The guided run</a>
-      <a href="#concepts">Artifacts &amp; the run store</a>
-      <a href="#commands">Command reference</a>
-      <a href="#config">Configuration</a>
-      <a href="#presets">Presets</a>
-      <a href="#executors">Executors &amp; credentials</a>
-      <a href="#verdicts">Verdicts, BLOCK &amp; retry</a>
-      <a href="#binding">The verdict binding</a>
-      <a href="#review">Advisory review (L5.5)</a>
-      <a href="#ci">Headless &amp; CI use</a>
-      <a href="#troubleshooting">Troubleshooting</a>
-    </nav>
+    <div class="docs-nav-wrap">
+      <input type="checkbox" id="docs-nav-toggle" class="docs-nav-toggle-input">
+      <label for="docs-nav-toggle" class="docs-nav-toggle">On this page</label>
+      <nav class="docs-nav" aria-label="Documentation sections">
+        <a href="#overview">Overview</a>
+        <a href="#install">Install</a>
+        <a href="#guided-run">The guided run</a>
+        <a href="#concepts">Artifacts &amp; the run store</a>
+        <a href="#commands">Command reference</a>
+        <a href="#config">Configuration</a>
+        <a href="#presets">Presets</a>
+        <a href="#executors">Executors &amp; credentials</a>
+        <a href="#verdicts">Verdicts, BLOCK &amp; retry</a>
+        <a href="#binding">The verdict binding</a>
+        <a href="#review">Advisory review (L5.5)</a>
+        <a href="#ci">Headless &amp; CI use</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+      </nav>
+    </div>
 
     <main class="docs-main">
       <h1>Documentation</h1>

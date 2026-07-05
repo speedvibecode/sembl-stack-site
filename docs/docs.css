@@ -10,7 +10,16 @@
   padding-bottom: 96px;
 }
 
-/* section nav — plain links, mono, like the header nav */
+/* section nav — plain links, mono, like the header nav. A checkbox-hack toggle
+   (zero JS) gives narrow viewports a real collapsed "on this page" control
+   instead of 13 links dumped as wrapped text above the title; wide viewports
+   unwrap the wrapper (display: contents) and the nav renders as the sidebar it
+   always was. (A <details>/<summary> was tried first — browsers force a closed
+   details' non-summary content to stay un-rendered even under display: contents,
+   so it went invisible at desktop widths. A checkbox has no such native hiding.) */
+.docs-nav-wrap { display: contents; }
+.docs-nav-toggle-input, .docs-nav-toggle { display: none; }
+
 .docs-nav {
   position: sticky;
   top: calc(var(--header-h) + 32px);
@@ -120,15 +129,41 @@
 
 @media (max-width: 960px) {
   .docs-layout { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+
+  .docs-nav-wrap {
+    display: block;
+    border: 1px solid var(--beam);
+    border-radius: var(--radius);
+    background: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .docs-nav-toggle-input { position: absolute; opacity: 0; pointer-events: none; }
+  .docs-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--text-dim);
+    padding: 12px 16px;
+    cursor: pointer;
+  }
+  .docs-nav-toggle::after { content: "+"; color: var(--text-faint); }
+  .docs-nav-toggle-input:checked ~ .docs-nav-toggle::after { content: "\2212"; }
+  .docs-nav-toggle-input:checked ~ .docs-nav-toggle { border-bottom: 1px solid var(--beam); }
+  .docs-nav-toggle-input:focus-visible ~ .docs-nav-toggle { outline: 1px solid var(--cyan-dim); outline-offset: -1px; }
+
   .docs-nav {
+    display: none;
     position: static;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 4px 18px;
+    gap: 6px 18px;
     border-left: 0;
-    border-bottom: 1px solid var(--beam);
-    padding-bottom: 16px;
+    padding: 14px 16px 16px;
   }
+  .docs-nav-toggle-input:checked ~ .docs-nav { display: flex; }
   .docs-nav a { border-left: 0; padding: 4px 0; margin-left: 0; }
   .docs-table td:first-child { width: 130px; white-space: normal; }
 }
